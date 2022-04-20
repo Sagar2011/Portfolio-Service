@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.business</groupId>
 	<artifactId>portfolio</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<name>Portfolio</name>
 	<description>portfolio tracking service</description>
 	<properties>
