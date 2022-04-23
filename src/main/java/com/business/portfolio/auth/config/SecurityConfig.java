@@ -27,17 +27,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable().authorizeRequests().antMatchers("/api/v1/auth/**").permitAll().and().antMatcher("/**").authorizeRequests().anyRequest()
                 .authenticated().and().addFilterAfter(new AuthFilter(), BasicAuthenticationFilter.class)
                 .authorizeRequests().and().exceptionHandling().authenticationEntryPoint(((request, response, e) -> {
-                    ErrorEnvelope errorResponse = new ErrorEnvelope("Access Denied_403", "Not Authorized", Arrays.toString(e.getStackTrace()));
+                    ErrorEnvelope errorResponse = new ErrorEnvelope("Access Denied_403", "Not Authorized", null);
                     response.setContentType("application/json;charset=UTF-8");
                     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                     response.getWriter().write(mapper.writeValueAsString(errorResponse));
                 }));
     }
-
-    // For ignoring security of api endpoints
-//    @Override
-//    public void configure(WebSecurity webSecurity) {
-//        webSecurity.ignoring().antMatchers("/api/v1/auth");
-//    }
 
 }
