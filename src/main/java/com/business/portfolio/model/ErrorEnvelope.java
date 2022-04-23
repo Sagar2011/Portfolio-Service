@@ -1,13 +1,13 @@
 package com.business.portfolio.model;
 
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ErrorEnvelope {
     private String status;
     private String message;
