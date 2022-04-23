@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import java.util.Optional;
 
 
 @Slf4j
+@Service("userService")
 public class UserApi implements UserService {
 
     @Autowired
@@ -34,11 +36,10 @@ public class UserApi implements UserService {
         BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
         try {
             jwt = new ArrayList<>();
-            Optional<User> userDetails = userRepo.findById(username);
-            if (userDetails.isEmpty())
+            User user = userRepo.findByUserName(username);
+            if (user == null)
                 throw new AccessDeniedException("No User found for authentication");
-            User user = userDetails.get();
-            if (user.getUserName().equals(username)) {
+            if (user.getUsername().equals(username)) {
                 String passCode = user.getPassword();
                 isPasswordMatches = bcrypt.matches(password, passCode);
             }
@@ -46,8 +47,7 @@ public class UserApi implements UserService {
                 String jwtToken = JwtUtil.addToken(user, servletResponse);
 //                String jwtToken = JwtUtil.addToken(authentication, user, servletResponse);
                 String expireTime = "Expires_At: " + new Date(System.currentTimeMillis() + 3600000);
-                String responseToken = "Token: " + jwtToken;
-                jwt.add(responseToken);
+                jwt.add(jwtToken);
                 jwt.add(expireTime);
                 log.info("Successful login for this user {} at {}", username, new Date().getTime());
                 response.setStatusCode(HttpStatus.OK);
@@ -55,8 +55,12 @@ public class UserApi implements UserService {
                 response.setDetails(jwt);
                 return response;
             }
+            response.setStatusCode(HttpStatus.FORBIDDEN);
+            response.setMessage("Wrong Login Attempt!");
+            response.setDetails(null);
             return response;
         } catch (Exception e) {
+            log.error(e.getMessage());
             throw new AccessDeniedException("Invalid Login", e);
         }
     }

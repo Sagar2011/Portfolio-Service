@@ -6,8 +6,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
 
-@Service
+@Service("userService")
 public interface UserService {
     ResponseModel userAuthentication(String username, String password, HttpServletResponse response);
-
 }

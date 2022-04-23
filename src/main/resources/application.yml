@@ -4,8 +4,8 @@ spring:
      version: v1.0.0
   data:
      mongodb:
-        uri: mongodb://portfolio:portfolio123@localhost:27017
-        database: portDb
+        uri: mongodb://root:toor321@localhost:27017
+        database: portfolioDb
 server:
   port: 9000
 
