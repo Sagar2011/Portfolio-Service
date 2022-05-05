@@ -24,4 +24,10 @@ public class RestExceptionHandler {
     public ErrorEnvelope accessDeniedException(Exception ex, WebRequest request) {
         return ErrorEnvelope.builder().status(HttpStatus.UNAUTHORIZED.toString()).message(HttpStatus.UNAUTHORIZED.getReasonPhrase()).description(ex.getMessage()).build();
     }
+
+    @ExceptionHandler(value = {DuplicateTickerException.class})
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ErrorEnvelope duplicateEntryException(Exception ex, WebRequest request) {
+        return ErrorEnvelope.builder().status(HttpStatus.BAD_REQUEST.toString()).message(HttpStatus.BAD_REQUEST.getReasonPhrase()).description(ex.getMessage()).build();
+    }
 }

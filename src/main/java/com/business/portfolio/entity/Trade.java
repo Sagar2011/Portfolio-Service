@@ -1,25 +1,21 @@
 package com.business.portfolio.entity;
 
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.business.portfolio.constant.TradeAction;
 import lombok.Data;
-import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-
-@Document("portfolio")
+@Document("trade")
 @Data
-@ToString
-public class Portfolio {
+public class Trade {
 
     @Id
     private String id;
-
-    @Indexed(unique = true)
+    @Indexed
     private String tickerSymbol;
-    private double avgBuyPrice;
+    private TradeAction action;
     private long quantity;
+    private double price;
 }
