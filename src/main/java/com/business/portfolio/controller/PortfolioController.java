@@ -15,8 +15,8 @@ public class PortfolioController {
     private PortfolioService portfolioService;
 
     @GetMapping("/")
-    public String test() {
-        return "success";
+    public ResponseModel fetchPortfolio() {
+        return portfolioService.fetchPortfolio();
     }
 
     @PostMapping("/")

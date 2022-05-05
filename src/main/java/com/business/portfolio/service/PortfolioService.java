@@ -10,4 +10,5 @@ import javax.servlet.http.HttpServletResponse;
 @Service("portfolioService")
 public interface PortfolioService {
     ResponseModel addPortfolio(Portfolio portfolio);
+    ResponseModel fetchPortfolio();
 }

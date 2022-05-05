@@ -2,6 +2,7 @@ package com.business.portfolio.api;
 
 import com.business.portfolio.entity.Portfolio;
 import com.business.portfolio.exception.DuplicateTickerException;
+import com.business.portfolio.exception.NoHoldingsFoundException;
 import com.business.portfolio.model.ResponseModel;
 import com.business.portfolio.repository.PortfolioRepository;
 import com.business.portfolio.service.PortfolioService;
@@ -10,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -41,5 +41,24 @@ public class PortfolioApi implements PortfolioService {
             return ResponseModel.builder().statusCode(HttpStatus.INTERNAL_SERVER_ERROR).message("Error in processing").details(List.of((e.getMessage()))).build();
         }
         return ResponseModel.builder().statusCode(HttpStatus.OK).message("Success!").details(List.of(portfolio)).build();
+    }
+
+    @Override
+    public ResponseModel fetchPortfolio() {
+        log.info("Fetching all the portfolio");
+        try {
+            List<Portfolio> holdings = portfolioRepository.findAll();
+            if (holdings.size() > 0) {
+                return ResponseModel.builder().statusCode(HttpStatus.OK).message("Success!").details(holdings).build();
+            } else {
+                throw new NoHoldingsFoundException("No portfolio found in current time!");
+            }
+        } catch (NoHoldingsFoundException e) {
+            log.error("Cannot found any portfolio in the DB now!!");
+            throw new DuplicateTickerException(e.getMessage());
+        } catch (Exception e) {
+            log.error("Error in fetching portfolio in the DB with {}", e.getMessage());
+            return ResponseModel.builder().statusCode(HttpStatus.INTERNAL_SERVER_ERROR).message("Error in fetching portfolio!").details(List.of((e.getMessage()))).build();
+        }
     }
 }

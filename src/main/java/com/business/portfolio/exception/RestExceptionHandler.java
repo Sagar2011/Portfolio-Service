@@ -30,4 +30,10 @@ public class RestExceptionHandler {
     public ErrorEnvelope duplicateEntryException(Exception ex, WebRequest request) {
         return ErrorEnvelope.builder().status(HttpStatus.BAD_REQUEST.toString()).message(HttpStatus.BAD_REQUEST.getReasonPhrase()).description(ex.getMessage()).build();
     }
+
+    @ExceptionHandler(value = {NoHoldingsFoundException.class})
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    public ErrorEnvelope noEntryException(Exception ex, WebRequest request) {
+        return ErrorEnvelope.builder().status(HttpStatus.NOT_FOUND.toString()).message(HttpStatus.NOT_FOUND.getReasonPhrase()).description(ex.getMessage()).build();
+    }
 }
