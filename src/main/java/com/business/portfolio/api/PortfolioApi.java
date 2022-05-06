@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -82,6 +83,25 @@ public class PortfolioApi implements PortfolioService {
             log.error("Error in fetching portfolio in the DB with {}", e.getMessage());
             return ResponseModel.builder().statusCode(HttpStatus.INTERNAL_SERVER_ERROR).message("Error in fetching portfolio!").response(List.of((e.getMessage()))).build();
         }
+    }
+
+    @Override
+    public List<String> fetchAvailableTickers() {
+        log.info("Fetching all the portfolio symbols");
+        List<String> response = new ArrayList<>();
+        try {
+            List<Portfolio> holdings = portfolioRepository.findAll();
+            if (holdings.size() > 0) {
+                for (Portfolio p :
+                        holdings) {
+                    response.add(p.getTickerSymbol());
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error in fetching portfolio in the DB with {}", e.getMessage());
+            return response;
+        }
+        return response;
     }
 
     private double calculateCumulativeReturn(List<Portfolio> portfolios) {
