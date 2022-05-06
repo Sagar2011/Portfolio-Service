@@ -24,7 +24,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     // For security on api endpoints
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable().authorizeRequests().antMatchers("/api/v1/auth/**").permitAll().and().antMatcher("/**").authorizeRequests().anyRequest()
+        http.csrf().disable().authorizeRequests().antMatchers("/api/v1/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll().and().antMatcher("/**").authorizeRequests().anyRequest()
                 .authenticated().and().addFilterAfter(new AuthFilter(), BasicAuthenticationFilter.class)
                 .authorizeRequests().and().exceptionHandling().authenticationEntryPoint(((request, response, e) -> {
                     ErrorEnvelope errorResponse = new ErrorEnvelope("Access Denied_403", "Not Authorized", null);

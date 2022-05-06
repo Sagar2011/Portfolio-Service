@@ -5,6 +5,7 @@ import com.business.portfolio.model.ResponseModel;
 import com.business.portfolio.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +21,7 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/login")
+    @GetMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseModel loginWithCredentials(@RequestHeader String username, @RequestHeader String password, HttpServletResponse response) {
         try {
             return userService.userAuthentication(username, password, response);
