@@ -23,4 +23,9 @@ public class PortfolioController {
     public ResponseModel addPortfolio(@RequestBody Portfolio portfolio) {
         return portfolioService.addPortfolio(portfolio);
     }
+
+    @GetMapping("/returns")
+    public ResponseModel fetchReturns() {
+        return portfolioService.fetchReturns();
+    }
 }

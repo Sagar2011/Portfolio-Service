@@ -18,5 +18,5 @@ import java.util.List;
 public class ResponseModel {
     private HttpStatus statusCode;
     public String message;
-    private List<?> details;
+    private List<?> response;
 }

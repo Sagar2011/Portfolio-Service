@@ -11,12 +11,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 @Service("portfolioService")
 @Slf4j
 public class PortfolioApi implements PortfolioService {
+
+    private static final double currentPrice = 100;
 
     @Autowired
     private PortfolioRepository portfolioRepository;
@@ -38,9 +41,9 @@ public class PortfolioApi implements PortfolioService {
             throw new DuplicateTickerException(e.getMessage());
         } catch (Exception e) {
             log.error("Error while adding portfolio in the DB {} with {}", portfolio, e.getMessage());
-            return ResponseModel.builder().statusCode(HttpStatus.INTERNAL_SERVER_ERROR).message("Error in processing").details(List.of((e.getMessage()))).build();
+            return ResponseModel.builder().statusCode(HttpStatus.INTERNAL_SERVER_ERROR).message("Error in processing").response(List.of((e.getMessage()))).build();
         }
-        return ResponseModel.builder().statusCode(HttpStatus.OK).message("Success!").details(List.of(portfolio)).build();
+        return ResponseModel.builder().statusCode(HttpStatus.OK).message("Success!").response(List.of(portfolio)).build();
     }
 
     @Override
@@ -49,7 +52,7 @@ public class PortfolioApi implements PortfolioService {
         try {
             List<Portfolio> holdings = portfolioRepository.findAll();
             if (holdings.size() > 0) {
-                return ResponseModel.builder().statusCode(HttpStatus.OK).message("Success!").details(holdings).build();
+                return ResponseModel.builder().statusCode(HttpStatus.OK).message("Success!").response(holdings).build();
             } else {
                 throw new NoHoldingsFoundException("No portfolio found in current time!");
             }
@@ -58,7 +61,36 @@ public class PortfolioApi implements PortfolioService {
             throw new DuplicateTickerException(e.getMessage());
         } catch (Exception e) {
             log.error("Error in fetching portfolio in the DB with {}", e.getMessage());
-            return ResponseModel.builder().statusCode(HttpStatus.INTERNAL_SERVER_ERROR).message("Error in fetching portfolio!").details(List.of((e.getMessage()))).build();
+            return ResponseModel.builder().statusCode(HttpStatus.INTERNAL_SERVER_ERROR).message("Error in fetching portfolio!").response(List.of((e.getMessage()))).build();
         }
+    }
+
+    @Override
+    public ResponseModel fetchReturns() {
+        log.info("Fetching returns for portfolio");
+        try {
+            List<Portfolio> holdings = portfolioRepository.findAll();
+            if (holdings.size() > 0) {
+                return ResponseModel.builder().statusCode(HttpStatus.OK).message("Success!").response(Collections.singletonList(calculateCumulativeReturn(holdings))).build();
+            } else {
+                throw new NoHoldingsFoundException("No portfolio found in current time for return!");
+            }
+        } catch (NoHoldingsFoundException e) {
+            log.error("Cannot found any portfolio in the DB now!!");
+            throw new DuplicateTickerException(e.getMessage());
+        } catch (Exception e) {
+            log.error("Error in fetching portfolio in the DB with {}", e.getMessage());
+            return ResponseModel.builder().statusCode(HttpStatus.INTERNAL_SERVER_ERROR).message("Error in fetching portfolio!").response(List.of((e.getMessage()))).build();
+        }
+    }
+
+    private double calculateCumulativeReturn(List<Portfolio> portfolios) {
+        double sum = 0;
+        for (Portfolio portfolio :
+                portfolios) {
+            sum += (currentPrice - portfolio.getAvgBuyPrice()) * portfolio.getQuantity();
+        }
+        log.info("Portfolio fetch returns calculated as {}", sum);
+        return sum;
     }
 }

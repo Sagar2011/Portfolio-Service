@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Optional;
 
 
 @Slf4j
@@ -52,12 +51,12 @@ public class UserApi implements UserService {
                 log.info("Successful login for this user {} at {}", username, new Date().getTime());
                 response.setStatusCode(HttpStatus.OK);
                 response.setMessage("Successful login");
-                response.setDetails(jwt);
+                response.setResponse(jwt);
                 return response;
             }
             response.setStatusCode(HttpStatus.FORBIDDEN);
             response.setMessage("Wrong Login Attempt!");
-            response.setDetails(null);
+            response.setResponse(null);
             return response;
         } catch (Exception e) {
             log.error(e.getMessage());
