@@ -1,23 +1,24 @@
 package com.business.portfolio.api;
 
+import com.business.portfolio.constant.TradeAction;
 import com.business.portfolio.entity.Portfolio;
 import com.business.portfolio.entity.Trade;
-import com.business.portfolio.exception.DuplicateTickerException;
-import com.business.portfolio.exception.NoHoldingsFoundException;
 import com.business.portfolio.exception.NoTradeFoundException;
+import com.business.portfolio.exception.NotSufficientException;
 import com.business.portfolio.model.ResponseModel;
 import com.business.portfolio.model.TradeResponse;
 import com.business.portfolio.repository.TradeRepository;
 import com.business.portfolio.service.PortfolioService;
 import com.business.portfolio.service.TradeService;
+import com.business.portfolio.service.UtilsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 
 @Service("tradeService")
@@ -29,6 +30,9 @@ public class TradeApi implements TradeService {
 
     @Autowired
     private PortfolioService portfolioApi;
+
+    @Autowired
+    private UtilsService utilsService;
 
     @Override
     public ResponseModel fetchTrades() {
@@ -59,5 +63,27 @@ public class TradeApi implements TradeService {
         }
         return ResponseModel.builder().statusCode(HttpStatus.OK).message("Success!").response(tradeResponses).build();
 
+    }
+
+    @Override
+    public ResponseModel addTrade(Trade trade) {
+        Portfolio portfolio = portfolioApi.fetchPortfolioBySymbol(trade.getTickerSymbol());
+        if (portfolio != null && utilsService.validateSecurity(portfolio, trade.getQuantity())) {
+            trade.setId(UUID.randomUUID().toString());
+            if (trade.getAction().equals(TradeAction.BUY)) {
+                portfolio.setAvgBuyPrice(utilsService.calSecurity(portfolio, trade.getQuantity(), trade.getPrice()));
+                portfolio.setQuantity(portfolio.getQuantity() + trade.getQuantity());
+            } else if (trade.getAction().equals(TradeAction.SELL)) {
+                trade.setPrice(100);
+                portfolio.setQuantity(portfolio.getQuantity() - trade.getQuantity());
+            } else {
+                throw new NotSufficientException("Not Sufficient shares to make trade!!");
+            }
+            //update portfolio
+            portfolio = portfolioApi.updatePortfolio(portfolio);
+            trade = tradeRepository.save(trade);
+
+        }
+        return ResponseModel.builder().statusCode(HttpStatus.CREATED).message("Success!").response(List.of(trade)).build();
     }
 }

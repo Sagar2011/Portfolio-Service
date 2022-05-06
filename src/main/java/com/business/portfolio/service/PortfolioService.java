@@ -14,4 +14,6 @@ public interface PortfolioService {
     ResponseModel fetchPortfolio();
     ResponseModel fetchReturns();
     List<String> fetchAvailableTickers();
+    Portfolio fetchPortfolioBySymbol(String tickerSymbol);
+    Portfolio updatePortfolio(Portfolio portfolio);
 }

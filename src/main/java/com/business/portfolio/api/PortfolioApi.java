@@ -104,6 +104,19 @@ public class PortfolioApi implements PortfolioService {
         return response;
     }
 
+    @Override
+    public Portfolio fetchPortfolioBySymbol(String tickerSymbol) {
+        return portfolioRepository.findByTickerSymbol(tickerSymbol);
+    }
+
+    @Override
+    public Portfolio updatePortfolio(Portfolio portfolio) {
+        Portfolio portfolio1 = fetchPortfolioBySymbol(portfolio.getTickerSymbol());
+        portfolio1.setQuantity(portfolio.getQuantity());
+        portfolio1.setAvgBuyPrice(portfolio.getAvgBuyPrice());
+        return portfolioRepository.save(portfolio1);
+    }
+
     private double calculateCumulativeReturn(List<Portfolio> portfolios) {
         double sum = 0;
         for (Portfolio portfolio :
