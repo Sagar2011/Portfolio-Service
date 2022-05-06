@@ -1,0 +1,11 @@
+spring:
+  application:
+     name: Portfolio API
+     version: v1.0.0
+  data:
+     mongodb:
+        uri: mongodb://root:toor321@localhost:27017
+        database: portfolioDb
+server:
+  port: 9000
+
