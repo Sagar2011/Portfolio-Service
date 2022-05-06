@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -85,5 +86,63 @@ public class TradeApi implements TradeService {
 
         }
         return ResponseModel.builder().statusCode(HttpStatus.CREATED).message("Success!").response(List.of(trade)).build();
+    }
+
+    @Override
+    public ResponseModel removeTrade(String id) {
+        log.info("removing trade id {}", id);
+        Optional<Trade> trade = tradeRepository.findById(id);
+        if (trade.isPresent()) {
+            Portfolio portfolio = portfolioApi.fetchPortfolioBySymbol(trade.get().getTickerSymbol());
+            if (portfolio != null && utilsService.validateSecurity(portfolio, trade.get().getQuantity())) {
+                if (trade.get().getAction().equals(TradeAction.BUY)) {
+                    portfolio.setAvgBuyPrice(utilsService.removeSecurity(portfolio, trade.get().getQuantity(), trade.get().getPrice()));
+                    portfolio.setQuantity(portfolio.getQuantity() - trade.get().getQuantity());
+                } else {
+                    portfolio.setQuantity(portfolio.getQuantity() + trade.get().getQuantity());
+                }
+            } else {
+                throw new NotSufficientException("Not sufficient quality to remove trade " + id);
+            }
+            portfolioApi.updatePortfolio(portfolio);
+            log.info("successfully removed trade id {}", id);
+            return ResponseModel.builder().statusCode(HttpStatus.OK).message("Success!").response(List.of(tradeRepository.save(trade.get()))).build();
+        } else {
+            throw new NoTradeFoundException("No trade found for the id " + id);
+        }
+    }
+
+    @Override
+    public ResponseModel updateTrade(String id, Trade newTrade) {
+        log.info("Updating trade id {}, with new Trade as {}", id, newTrade.toString());
+        Optional<Trade> trade = tradeRepository.findById(id);
+        if (trade.isPresent()) {
+            if (!trade.get().getAction().equals(newTrade.getAction())) {
+                Portfolio portfolio = portfolioApi.fetchPortfolioBySymbol(trade.get().getTickerSymbol());
+                if (portfolio != null && utilsService.validateSecurity(portfolio, newTrade.getQuantity())) {
+                    if (newTrade.getAction().equals(TradeAction.BUY)) {
+                        portfolio.setAvgBuyPrice(utilsService.calSecurity(portfolio, newTrade.getQuantity(), newTrade.getPrice()));
+                        portfolio.setQuantity(portfolio.getQuantity() + newTrade.getQuantity());
+                    } else {
+                        portfolio.setQuantity(portfolio.getQuantity() - newTrade.getQuantity());
+                    }
+                } else {
+                    throw new NotSufficientException("Not sufficient quality to update trade " + id);
+                }
+                portfolioApi.updatePortfolio(portfolio);
+                log.info("Successfully updated data in trading for id {}", id);
+                return ResponseModel.builder().statusCode(HttpStatus.OK).message("Success!").response(List.of(tradeRepository.save(updateTradeData(newTrade, trade.get())))).build();
+            }
+        } else {
+            throw new NoTradeFoundException("No trade found for the id " + id);
+        }
+        return null;
+    }
+
+    private Trade updateTradeData(Trade newTrade, Trade oldTrade) {
+        oldTrade.setPrice(newTrade.getPrice());
+        oldTrade.setQuantity(newTrade.getQuantity());
+        oldTrade.setAction(newTrade.getAction());
+        return oldTrade;
     }
 }

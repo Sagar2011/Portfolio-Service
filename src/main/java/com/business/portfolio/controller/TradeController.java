@@ -23,4 +23,14 @@ public class TradeController {
     public ResponseModel addTrades(@RequestBody Trade trade) {
         return tradeService.addTrade(trade);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseModel addTrades(@PathVariable String id) {
+        return tradeService.removeTrade(id);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseModel updateTrade(@PathVariable String id, @RequestBody Trade newTrade) {
+        return tradeService.updateTrade(id, newTrade);
+    }
 }

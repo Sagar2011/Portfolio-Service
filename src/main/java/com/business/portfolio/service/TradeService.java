@@ -9,4 +9,7 @@ import org.springframework.stereotype.Service;
 public interface TradeService {
     ResponseModel fetchTrades();
     ResponseModel addTrade(Trade trade);
+    ResponseModel removeTrade(String id);
+
+    ResponseModel updateTrade(String id, Trade newTrade);
 }
