@@ -15,7 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -67,6 +69,7 @@ public class TradeApi implements TradeService {
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public ResponseModel addTrade(Trade trade) {
         Portfolio portfolio = portfolioApi.fetchPortfolioBySymbol(trade.getTickerSymbol());
         if (portfolio != null && utilsService.validateSecurity(portfolio, trade.getQuantity())) {
@@ -113,7 +116,8 @@ public class TradeApi implements TradeService {
     }
 
     @Override
-    public ResponseModel updateTrade(String id, Trade newTrade) {
+    @Transactional(rollbackFor = {Exception.class})
+    public synchronized ResponseModel updateTrade(String id, Trade newTrade) {
         log.info("Updating trade id {}, with new Trade as {}", id, newTrade.toString());
         Optional<Trade> trade = tradeRepository.findById(id);
         if (trade.isPresent()) {

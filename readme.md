@@ -34,4 +34,5 @@ mvn spring-boot:run
 
 
 - developed by Sagar Jain
-  Note: Let me know if you have any doubts inorder to run tool or anything I will clarify it.
+
+**NOTE**: Let me know if you have any doubts inorder to run tool or anything I will clarify it.

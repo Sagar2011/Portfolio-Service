@@ -70,6 +70,7 @@ public class PortfolioApi implements PortfolioService {
     public ResponseModel fetchReturns() {
         log.info("Fetching returns for portfolio");
         try {
+            // db.portfolio.findAll()
             List<Portfolio> holdings = portfolioRepository.findAll();
             if (holdings.size() > 0) {
                 return ResponseModel.builder().statusCode(HttpStatus.OK).message("Success!").response(Collections.singletonList(calculateCumulativeReturn(holdings))).build();
@@ -119,6 +120,7 @@ public class PortfolioApi implements PortfolioService {
 
     private double calculateCumulativeReturn(List<Portfolio> portfolios) {
         double sum = 0;
+        // call ext API
         for (Portfolio portfolio :
                 portfolios) {
             sum += (currentPrice - portfolio.getAvgBuyPrice()) * portfolio.getQuantity();
